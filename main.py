@@ -1,306 +1,361 @@
 import telebot
 import botConfig
-from datetime import timedelta, datetime
+from datetime import datetime
 import time
-from emoji import emojize
-from random import choice
+# from emoji import emojize
+# from random import choice
 import locale
 import calendar
+from enum import Enum
 
 locale.setlocale(locale.LC_ALL, "")
-
-# telebot.apihelper.proxy = {'PROXY'}
 bot = telebot.TeleBot(botConfig.TOKEN)
-targetID = 1030381477 #1030381477-Katy   1100544423-Polly
-targetIDtest = 683022141
-adminID = 683022141
+katy_id = botConfig.KATYID
+admin_id = botConfig.ADMINID
 
-keyboard1 = telebot.types.ReplyKeyboardMarkup(True, True)
-keyboard1.row('/Начать', '/Помощь')
+keyboard_start = telebot.types.ReplyKeyboardMarkup(True, True)
+keyboard_start.row('/Начать', '/Помощь')
 
-keyboard2 = telebot.types.InlineKeyboardMarkup()
-keyboard2.add(telebot.types.InlineKeyboardButton(text='Воспользоваться', callback_data = "useIt"))
-keyboard2.add(telebot.types.InlineKeyboardButton(text='Помощь', callback_data = "help"))
+keyboard_signup = telebot.types.InlineKeyboardMarkup()
+keyboard_signup.add(telebot.types.InlineKeyboardButton(text='Записаться', callback_data="signup"))
 
-backButton = telebot.types.InlineKeyboardMarkup()
-backButton.add(telebot.types.InlineKeyboardButton(text='Вернуться', callback_data = "back"))
+keyboard_back = telebot.types.InlineKeyboardMarkup()
+keyboard_back.add(telebot.types.InlineKeyboardButton(text='Вернуться', callback_data="back"))
 
-STICKERS = ['CAACAgIAAxkBAAEBuxlf7H3QOn-nJnpRjlNcElhfl8iTswACsgEAAjDUnRHOwb3OvDHg8h4E', 'CAACAgIAAxkBAAEBuxtf7H3jjemyO3PDOjKL4zp7gU8SWQACsAEAAjDUnRGkbRgnBeEJix4E', 'CAACAgIAAxkBAAEBux1f7H3vm88rAAFta5scfWN6i0RVsXIAArUBAAIw1J0RU4pzFgFgbjEeBA']
-HNY = ['🎁', '🎊', '🎉', '🎄', '☃', '❄', '🎅']
-SMILE = ['😉', '😘', '😍', '😜', '😏', '🍕', '🍰', '🍷', '💅', '💃', '🧩', '📺', '📚', '🛀', '🛌', '👩‍❤️‍👨', '🍾', '👇', '❗']
-#         0     1      2     3     4     5      6     7     8     9      10    11    12    13     14    15    16    17    18
 
+class Month(Enum):
+    JAN = (1, 'января')
+    FEB = (2, 'февраля')
+    MAR = (3, 'марта')
+    APR = (4, 'апреля')
+    MAY = (5, 'мая')
+    JUN = (6, 'июня')
+    JUL = (7, 'июля')
+    AUG = (8, 'августа')
+    SEP = (9, 'сентября')
+    OKT = (10, 'октября')
+    NOV = (11, 'ноября')
+    DEC = (12, 'декабря')
+
+    def get_number(self, input_param):
+        print(self.value[0], self.value[1], self.name, input_param)
 
 
 # bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot
 # bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot  bot
-
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    smile = emojize(choice(HNY))
-    stick = choice(STICKERS)
+    bot.send_message(
+        message.chat.id,
+        'Приветствую, {user}!\n\n'
+        'Для продолжения нажмите «Начать»'.format(user=message.from_user.username),
+        reply_markup=keyboard_start)
 
-    newYear = datetime(2021, 1, 1, 0, 0, 1)
-    period = newYear - datetime.now()
-    # print("{} секунд / {} period".format(period.total_seconds(), period))
-
-    bot.send_sticker(message.chat.id, '{sticker}'.format(sticker = stick))
-    time.sleep(0.5)
-    if period.total_seconds() > 0:
-        bot.send_message(
-            message.chat.id, #https://trial-sport.ru/goods/1493666.html
-            'Привет, {user}! {smile}\nУже интересно что тебя тут ждёт? {wink}\n\nУзнаешь 1 января 2021 года, а пока рано...'.format(user = message.from_user.username, smile = smile, wink = SMILE[0]))
-    else:
-        bot.send_message(
-            message.chat.id, #https://trial-sport.ru/goods/1493666.html
-            'Привет, {user}! {smile}\nУже интересно что тебя тут ждёт? {wink}\n\nДля продолжения нажми «Начать»'.format(user = message.from_user.username, smile = smile, wink = SMILE[0]),
-            reply_markup = keyboard1)
-
-    print(datetime.now(), '// bot started by user', message.from_user.username,'( user.id', message.from_user.id,') user.is.bot', message.from_user.is_bot)
-
+    print(datetime.now(),
+          '// bot started by user', message.from_user.username,
+          '( user.id', message.from_user.id,
+          ') user.is.bot', message.from_user.is_bot)
 
 
 @bot.message_handler(commands=['Начать'])
 def starting_command(message):
-    # fileName = message.from_user.id
-    # userFile = open("{fName}.txt".format(fName = fileName), "a")
-    if message.from_user.id == targetID or message.from_user.id == targetIDtest:
-        text = ('Дорогая Катюшенька! {kiss}\n'
-        'С Новым 2021 годом тебя! {hny}\n'
-        'А это твой подарок {gift}\n\n {voskl}Твои незабываемые выходные{voskl}\n\n'
-        'Как ты их проведешь, решать тебе\nХочешь так {party}  Супер!\n'
-        'Так {relax}  Ok!\nЯ со своей стороны приложу максимум усилий, чтобы сделать их идеальными\n\n'
-        'Подарок, кстати, действует с вечера ПЯТНИЦЫ по вечер ВОСКРЕСЕНЬЯ.\nА ещё к подарку прилагается:\n'
-        '{wine} бутылочка хорошего вина (ты его уже увидела {wink1})\n*{sushi} заказ пиццы и/или суши\n*{youme} свидание со мной\n\n'
-        'Про детей не волнуйся, мы все будем вместе под присмотром бабушки\n\n'
-        'Люблю тебя очень! {love}\n'
-        'Как только ты определишься с датой, сообщи этому боту, ну или сразу мне шепни на ушко {kiss}\n* - исключительно по твоему желанию\n\n'
-        'Не понятно? Жми «Помощь».'.format(hny = HNY[2] + HNY[3], gift = HNY[0] + SMILE[17], party = SMILE[7] + SMILE[8] + SMILE[9] + SMILE[3], relax = SMILE[7] + SMILE[13] + SMILE[11] + SMILE[12] + SMILE[10] + SMILE[14] + SMILE[14] + SMILE[14], wine = SMILE[16], sushi = SMILE[5], youme = SMILE[15] + SMILE[4] + SMILE[2], wink1 = SMILE[0], kiss = SMILE[1], love = SMILE[1] + SMILE[2] + SMILE[2], voskl = SMILE[18]))
+    if message.from_user.id == katy_id or message.from_user.id == admin_id:
+        keyboard_signup.add(telebot.types.InlineKeyboardButton(text='Инициализировать', callback_data="month_init"))
+        text = ('Привет, {user}!\n'
+                'Для возможности записи надо инициальзировать ближайшие два месяца.'
+                'Нажми «Инициализировать» и выбери количество месяцев '
+                '(1 - текущий, 2 - следующий, 1:2 - сразу оба)'.format(user=message.from_user.username))
         bot.send_message(
             message.chat.id,
             text,
-            reply_markup = keyboard2)
+            reply_markup=keyboard_signup)
     else:
-        text = ('А ты кто вообще и что тут делаешь?!\n'
-        'Это всё не для тебя... сорян')
+        keyboard_signup.add(telebot.types.InlineKeyboardButton(text='Помощь', callback_data="help"))
+        text = 'Для выбора даты нажмите «Записаться»'
         bot.send_message(
             message.chat.id,
-            text)
-
+            text,
+            reply_markup=keyboard_signup)
 
 
 @bot.message_handler(commands=['Помощь'])
 def help_command(message):
-    if message.from_user.id == targetID or message.from_user.id == targetIDtest:
-        text = 'Этот бот поможет воспользоваться твоим новогодним подарком, давай быстрей нажимай «Начать»'
+    if message.from_user.id == admin_id or message.from_user.id == katy_id:
+        text = 'Что, не знаешь к кому обратиться чтоль? ;)'
     else:
-        text = 'Этот бот разработан для другого пользователя'
+        text = 'Этот бот поможет Вам записаться на маникюр в любую удобную дату.\n' \
+               'Достаточно нажать «Записаться», а затем выбрать дату из ближайших двух месяцев'
     bot.send_message(
         message.chat.id,
         text,
-        reply_markup = keyboard1)
-
-
-
-# @bot.message_handler(content_types=['text'])
-# def send_text(message):
-#     selectedText = message.text
-#     # fileName = message.from_user.id
-#
-#     if selectedText == 'Воспользоваться!':
-#         msg = bot.send_message(message.chat.id, 'Катюш, напиши, когда ты хочешь этим заняться {smile}'.format(smile = SMILE[4]), reply_markup = backButton)
-#         bot.register_next_step_handler(msg, dateInput)
-#     # elif selectedText == 'Вернуться':
-#     #     bot.delete_message(message.chat.id, message.message_id)
-#     #     bot.send_message(message.chat.id, 'Ну, что делать будем?', reply_markup = keyboard2)
-#     else:
-#         bot.send_message(message.chat.id, 'Воспользуйся кнопками с командами боту', reply_markup = keyboard1)
-
+        reply_markup=keyboard_start)
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def query_handler(call):
-    fridayTuple = searchFriday()
-    monthButtons1 = telebot.types.InlineKeyboardMarkup()
-    if len(fridayTuple[0]) > 0:
-        for i in range(len(fridayTuple[0])):
-            monthButtons1.add(telebot.types.InlineKeyboardButton(text = str(fridayTuple[0][i]) + ' ' + fridayTuple[1], callback_data = "firstMonth" + str(i)))
-            # time.sleep(0.5)
-        monthButtons1.add(telebot.types.InlineKeyboardButton(text='Следующий месяц', callback_data = "nextMonth"))
-        monthButtons1.add(telebot.types.InlineKeyboardButton(text='Вернуться', callback_data = "backFromMonth"))
+    now = datetime.now()
+    days_list_first = load_day_list(now.month)
+    first_month_buttons = telebot.types.InlineKeyboardMarkup()
+    if len(days_list_first) > 0:
+        for i in range(len(days_list_first)):
+            split_date = days_list_first[i].split()
+            first_month_buttons.add(telebot.types.InlineKeyboardButton(text=days_list_first[i],
+                                                                       callback_data="callb_1st_" + split_date[0]))
+        first_month_buttons.add(telebot.types.InlineKeyboardButton(text='Следующий месяц',
+                                                                   callback_data="next_month"))
+        first_month_buttons.add(telebot.types.InlineKeyboardButton(text='Вернуться',
+                                                                   callback_data="back_from_month_buttons"))
     else:
-        monthButtons1.add(telebot.types.InlineKeyboardButton(text='Следующий месяц', callback_data = "nextMonth"))
-        monthButtons1.add(telebot.types.InlineKeyboardButton(text='Вернуться', callback_data = "backFromMonth"))
-    monthButtons2 = telebot.types.InlineKeyboardMarkup()
-    for i in range(len(fridayTuple[2])):
-        monthButtons2.add(telebot.types.InlineKeyboardButton(text = str(fridayTuple[2][i]) + ' ' + fridayTuple[3], callback_data = "secondMonth" + str(i)))
-        # time.sleep(0.5)
-    monthButtons2.add(telebot.types.InlineKeyboardButton(text='Предыдущий месяц', callback_data = "prevMonth"))
-    monthButtons2.add(telebot.types.InlineKeyboardButton(text='Вернуться', callback_data = "backFromMonth"))
+        first_month_buttons.add(telebot.types.InlineKeyboardButton(text='Следующий месяц',
+                                                                   callback_data="next_month"))
+        first_month_buttons.add(telebot.types.InlineKeyboardButton(text='Вернуться',
+                                                                   callback_data="back_from_month_buttons"))
+    days_list_second = load_day_list(now.month + 1)
+    second_month_buttons = telebot.types.InlineKeyboardMarkup()
+    for i in range(len(days_list_second)):
+        split_date = days_list_second[i].split()
+        second_month_buttons.add(telebot.types.InlineKeyboardButton(text=days_list_second[i],
+                                                                    callback_data="callb_2nd_" + split_date[0]))
+    second_month_buttons.add(telebot.types.InlineKeyboardButton(text='Предыдущий месяц',
+                                                                callback_data="prev_month"))
+    second_month_buttons.add(telebot.types.InlineKeyboardButton(text='Вернуться',
+                                                                callback_data="back_from_month_buttons"))
 
     if call.data == 'back':
-        # bot.delete_message(call.message.chat.id, call.message.message_id)
-        # call.message.text = ''
         bot.send_message(
             call.message.chat.id,
-            'Ну, что делать будем?',
-            reply_markup = keyboard2)
+            'Какие дальнейшие действия?',
+            reply_markup=keyboard_signup)
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-    elif call.data == 'backFromMonth':
+
+    elif call.data == 'back_from_month_buttons':
         bot.send_message(
             call.message.chat.id,
-            'Продолжим?',
-            reply_markup = keyboard2)
+            'Может продолжим?',
+            reply_markup=keyboard_signup)
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
+
     elif call.data == 'help':
-        # bot.delete_message(call.message.chat.id, call.message.message_id)
-        # call.message.text = ''
         bot.send_message(
             call.message.chat.id,
-            'Этот бот поможет воспользоваться твоим новогодним подарком',
-            reply_markup = keyboard2)
+            'Этот бот поможет записаться на маникюр, просто выберите желаемую дату',
+            reply_markup=keyboard_signup)
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-    elif call.data == 'useIt':
+
+    elif call.data == 'month_init':
+        msg = bot.send_message(
+            call.message.chat.id,
+            'Выбери параметр инициализации (1 - инициализировать текущий месяц, 2 - следующий, 12 - сразу оба) и '
+            'отправь это число боту')
+        bot.register_next_step_handler(msg, setup_signup_list)
+        bot.send_message(call.message.chat.id, 'Готово!')
+
+    elif call.data == 'signup':
         bot.send_message(
             call.message.chat.id,
-            'Катюш, выбери, когда ты хочешь этим заняться {smile}'.format(smile = SMILE[4]),
-            reply_markup = monthButtons1)
+            'Выберите желаемую дату',
+            reply_markup=first_month_buttons)
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-    elif call.data == 'nextMonth':
+
+    elif call.data == 'next_month':
         bot.send_message(
             call.message.chat.id,
-            'А это список пятниц следующего месяца:',
-            reply_markup = monthButtons2)
+            'Даты следующего месяца, доступные для записи:',
+            reply_markup=second_month_buttons)
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-    elif call.data == 'prevMonth':
-        if len(fridayTuple[0]) > 0:
+
+    elif call.data == 'prev_month':
+        if len(days_list_second) > 0:
             bot.send_message(
                 call.message.chat.id,
-                'Вот список пятниц этого месяца:',
-                reply_markup = monthButtons1)
+                'Даты текущего месяца, доступные для записи:',
+                reply_markup=first_month_buttons)
         else:
             bot.send_message(
                 call.message.chat.id,
-                'В этом месяце пятниц не осталось, выбирай следующий месяц',
-                reply_markup = monthButtons1)
+                'В этом месяце доступных для записи дат не осталось, выбирайте следующий месяц',
+                reply_markup=first_month_buttons)
         bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
 
-    # elif call.data == 'firstMonth0':
-    #     bot.clear_step_handler_by_chat_id(chat_id = call.message.chat.id)
-    #     msg = bot.send_message(call.message.chat.id, str(fridayTuple[0][0]) + ' ' + fridayTuple[1])
-    #     time.sleep(1)
-    #     bot.send_message(683022141, 'выбрана дата: ' + msg.text)
-    #     time.sleep(0.5)
-    #     bot.send_message(call.message.chat.id, 'Ну всё, готово!\nОжидайте, с вами скоро свяжутся ;)')
-    #     bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-
-    for i in range(len(fridayTuple[0])):
-        text = "firstMonth" + str(i)
-        # print('text', text)
-        if call.data == text:
-            # bot.clear_step_handler_by_chat_id(chat_id = call.message.chat.id)
-            msg = bot.send_message(call.message.chat.id, str(fridayTuple[0][i]) + ' ' + fridayTuple[1])
-            time.sleep(0.5)
-            bot.send_message(adminID, 'выбрана дата: ' + msg.text)
-            time.sleep(0.5)
-            bot.send_message(call.message.chat.id, 'Ну всё, готово!\nОжидайте, с вами скоро свяжутся ;)')
-            bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-
-    for i in range(len(fridayTuple[2])):
-        text = "secondMonth" + str(i)
-        # print('text', text)
-        if call.data == "secondMonth" + str(i):
-            # bot.clear_step_handler_by_chat_id(chat_id = call.message.chat.id)
-            msg = bot.send_message(call.message.chat.id, str(fridayTuple[2][i]) + ' ' + fridayTuple[3])
-            time.sleep(0.5)
-            bot.send_message(adminID, 'выбрана дата: ' + msg.text)
-            time.sleep(0.5)
-            bot.send_message(call.message.chat.id, 'Ну всё, готово!\nОжидайте, с вами скоро свяжутся ;)')
-            bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
-
-
-
-
-
+    client = "name:{}___id:{}".format(call.from_user.username,
+                                      call.from_user.id)
+    callback_text = ["callb_1st_", "callb_2nd_"]
+    day_list_variant = [days_list_first, days_list_second]
+    for m in range(1):
+        for i in range(len(day_list_variant[m])):
+            split_date = day_list_variant[m][i].split()
+            text = callback_text[m] + split_date[0]
+            if call.data == text:
+                msg = bot.send_message(call.message.chat.id, day_list_variant[m][i])
+                update_file(now.month + m, int(split_date[0]), client)
+                time.sleep(0.5)
+                bot.send_message(admin_id, 'выбрана дата маникюра: ' + msg.text)
+                time.sleep(0.5)
+                bot.send_message(call.message.chat.id,
+                                 'Вы успешно записаны!\n'
+                                 'В скором времени с Вами свяжется администратор для подтверждения даты')
+                bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id)
 
 
 # FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS
 # FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS  FUNCTIONS
 
-# def dateInputFunc(message):
-#     dateInput = message.text
-#     print('dateInput', dateInput)
-#     if len(dateInput) < 15:
-#         bot.send_message(message.chat.id, 'Отлично!\nСейчас кое-кому отправлю...' + dateInput)
-#         time.sleep(1)
-#         now = datetime.now()
-#         bot.send_message(683022141, '@ alex:' + now.strftime("%d %B %Y (%A)"))
-#         time.sleep(1)
-#         bot.send_message(message.chat.id, 'Ну всё, готово!')
-#         print('Ну всё, готово!')
-#     else:
-#         bot.delete_message(message.chat.id, message.message_id)
-#         bot.send_message(message.chat.id, 'Попробуй еще раз, что-то пошло не так...', reply_markup = keyboard2)
-# end dateInput
-
-
-
-def searchFriday():
+def setup_signup_list(param):
+    """
+    функция инициализирует месячные расписания в зависимости от param
+    :param param: 1-текущий месяц, 2-следующий месяц, 12-оба месяца
+    :return: возвращает список дней и название месяца
+    """
     now = datetime.now()
-    yearFirstInt = int(now.strftime("%Y"))
-    monthFirst = now.strftime("%m")
-    monthFirstStr = now.strftime("%B")
-    # fridayMonthFirst = []
-    # fridayMonthSecond = []
+    enum_items = [item.value for item in Month]
+    # создаётся список из значений перечисления методом перебора циклом for
+    year_first_int = int(now.strftime("%Y"))
+    month_first_int = now.strftime("%m")
+    month_first_str = enum_items[int(month_first_int) - 1][1]
+    # month_first_str = list(Month)[int(month_first_int) + 1].value[1]
+    # преобразует перечесление в список, берет из этого списка "month_first_int + 1" элемент
+    # у элемента получает значение value, так как это кортеж, то выбирает из него нужный элемент
+    # пример списка [<Month.JAN: (1, 'января')>, <Month.FEB: (2, 'февраля')>,...]
+    # now.strftime("%B") - старый функционал
 
-    if monthFirst.isdigit():
-        if monthFirst.find('0') == 0:
-            monthFirst.replace("0", "")
-        monthFirstInt = int(monthFirst)
-    if monthFirstInt == 12:
-        monthSecondInt = 1
-        yearSecondInt = yearFirstInt + 1
+    if month_first_int.isdigit():
+        if month_first_int.find('0') == 0:
+            month_first_int.replace("0", "")
+        month_first_int = int(month_first_int)
+    if month_first_int == 12:
+        month_second_int = 1
+        year_second_int = year_first_int + 1
     else:
-        monthSecondInt = monthFirstInt + 1
-        yearSecondInt = yearFirstInt
-    monthSecondStr = (datetime(yearSecondInt, monthSecondInt, 1)).strftime("%B")
+        month_second_int = month_first_int + 1
+        year_second_int = year_first_int
+    month_second_str = enum_items[month_second_int - 1][1]
+    # month_second_str = list(Month)[month_second_int + 1].value[1]
+    # (datetime(year_second_int, month_second_int, 1)).strftime("%B") - старый функционал
 
-    fridayMonthFirst = calcDays(yearFirstInt, monthFirstInt)
-    fridayMonthSecond = calcDays(yearSecondInt, monthSecondInt)
-
-    # print(fridayMonthFirst, fridayMonthSecond)
-    return fridayMonthFirst, monthFirstStr, fridayMonthSecond, monthSecondStr
-# end searchFriday
-
-
-
-def calcDays(year, month):
-    searchDay = 0
-    days = []
-    dayCount = calendar.monthrange(year, month)[1]
-
-    for i in range(1, 7):
-        currentDate = datetime(year, month, i)
-        # print(currentDate)
-        if (currentDate.strftime("%A")).lower() == 'пятница':
-            searchDay = i
-            break
-
-    for d in range(searchDay, dayCount, 7):
-        period = datetime(year, month, d, 19, 00, 00) - datetime.now()
-        if ((datetime(year, month, d)).strftime("%A")).lower() == 'пятница':
-            if period.total_seconds() > 0:
-                days.append(d)
-    return days
-# end calcDays
+    if int(param.text) == 1:
+        days_list_month_first = make_signup_day_list(year_first_int,
+                                                     enum_items[int(month_first_int) - 1][0])
+        return days_list_month_first, month_first_str
+    elif int(param.text) == 2:
+        days_list_month_second = make_signup_day_list(year_second_int,
+                                                      enum_items[month_second_int - 1][0])
+        return days_list_month_second, month_second_str
+    elif int(param.text) == 12:
+        days_list_month_first = make_signup_day_list(year_first_int,
+                                                     enum_items[int(month_first_int) - 1][0])
+        days_list_month_second = make_signup_day_list(year_second_int,
+                                                      enum_items[month_second_int - 1][0])
+        return days_list_month_first, month_first_str, days_list_month_second, month_second_str
+# end setup_signup_list
 
 
+def make_signup_day_list(year, month):
+    """
+    функция формирует список дней, доступных клиентам для записи
+    :param year: int
+    :param month: int
+    :return:
+    """
+    signup_days_list = []
+    enum_months = [item for item in Month]  # создание списка из перечисления Month
+    days_count_in_month = calendar.monthrange(year, enum_months[month-1].value[0])[1]
+    month_str = "{}_{}.{}".format(str(year), enum_months[month-1].value[0], enum_months[month-1].name)
 
-while True:
+    # создание файла с записью расписания на месяц
+    save_file = open("signup/{}.txt".format(month_str), "a")
+    # начиная с первого дня и до конца месяца с интервалом в день
+    # проходит по циклу и формирует месячное расписание (отсчет с 12.00 каждого дня)
+    for d in range(1, days_count_in_month + 1, 1):
+        period = datetime(year, enum_months[month-1].value[0], d, 12, 0, 0) - datetime.now()
+        # print('period', period)
+        if period.total_seconds() > 0:
+            signup_days_list.append(d)
+            # print('days_list', days_list)
+            cur_day = (datetime(year, month, d)).strftime("%A")
+            if cur_day == 'Saturday' or cur_day == 'Sunday':
+                sign_time = '14:00'
+            else:
+                sign_time = '18:30'
+            try:
+                # попытка записи данных в файл
+                save_file.write("day {} time {} client {} |\n".format(str(d), sign_time, 'none'))
+            except Exception as ex:
+                print(datetime.now(), 'save_file write ERROR!!! -', ex)
+    save_file.close()
+    return signup_days_list
+# end make_signup_day_list
+
+
+def update_file(month, update_day, client):
+    """
+    функция обновляет данные файла 'расписание на месяц'
+    :param month: int
+    :param update_day: int
+    :param client: str
+    :return: none
+    """
+    # noinspection PyGlobalUndefined
+    global string_from_file, day_from_splitted_string
+    enum_months = [item for item in Month]  # создание списка из перечисления Month
+    now = datetime.now()
+    month_str = "{}_{}.{}".format(now.strftime("%Y"), enum_months[month - 1].value[0], enum_months[month - 1].name)
     try:
+        with open("signup/{}.txt".format(month_str), "r") as f:
+            from_file_list = f.readlines()
+            f.close()
+        # построковое чтение общего списка
+        for cur_string in from_file_list:
+            # если строка 'cur_string' содержит текст 'update_day'
+            if cur_string.find(str(update_day)) != -1:
+                # разбивка строки по пробелам
+                splitted_string = cur_string.split()
+                day_from_splitted_string = splitted_string[1]
+                # если в разбитой строке таже дата, что и выбранная пользователем
+                if day_from_splitted_string == str(update_day):
+                    # получение индекса текущей строки общего списка
+                    index = from_file_list.index(cur_string)
+                    # удаление текущей строки из общего списка
+                    from_file_list.pop(index)
+                    # обновление данных о пользователе
+                    cur_string_edited = cur_string.replace('none', client)
+                    # вставка обновлённой строки вместо удаленной в общий список
+                    from_file_list.insert(index, cur_string_edited)
+        # запись обновлённого списка в файл
+        try:
+            update_file_data = open("signup/{}.txt".format(month_str), "w")
+            for i in range(len(from_file_list)):
+                update_file_data.write(from_file_list[i])
+            update_file_data.close()
+        except Exception as ex:
+            print('cant overwrite update_file_data | Exception =', ex)
+    except Exception as ex:
+        print('cant open signup file | Exception =', ex)
+# end update_file
+
+
+def load_day_list(month):
+    enum_months = [item for item in Month]  # создание списка из перечисления Month
+    now = datetime.now()
+    month_str = "{}_{}.{}".format(now.strftime("%Y"), enum_months[month - 1].value[0], enum_months[month - 1].name)
+    output_list = []
+    output_month = enum_months[month - 1].value[1]
+    try:
+        with open("signup/{}.txt".format(month_str), "r") as f:
+            from_file_list = f.readlines()
+            f.close()
+            for i in from_file_list:
+                if i.find('none') != -1:
+                    # разбивка строки по пробелам
+                    splitted_string = "{} {}".format(i.split()[1], output_month)
+                    output_list.append(splitted_string)
+    except Exception as ex:
+        print('cant open signup file | Exception =', ex)
+    return output_list
+
+
+if __name__ == '__main__':
+    is_running = True
+
+    while is_running:
         bot.polling(none_stop=True)
-    except Exception as e:
-        print(datetime.now(), 'ERROR!!! -', e)
-        # повторяем через 15 секунд в случае недоступности сервера Telegram
-        time.sleep(15)
